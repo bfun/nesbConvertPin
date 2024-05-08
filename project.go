@@ -24,13 +24,13 @@ func getKindFilenamesFromProject(prefix string) []string {
 }
 
 func getDtaParmFiles() []string {
-	return getKindFilenamesFromProject(`DtaParm="file://"`)
+	return getKindFilenamesFromProject(`DtaParm="file://`)
 }
 
 func getServiceFiles() []string {
-	return getKindFilenamesFromProject(`Service="file://"`)
+	return getKindFilenamesFromProject(`Service="file://`)
 }
 
 func getFormatFiles() []string {
-	return getKindFilenamesFromProject(`Format="file://"`)
+	return getKindFilenamesFromProject(`Format="file://`)
 }

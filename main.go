@@ -1,6 +1,6 @@
 package nesbconvertpin
 
-func main() {
+func Main() {
 	mcps := CSMP_PIN_SERVICE()
 	gets := get_svcname_by_procode()
 	txml := nesb_txml()

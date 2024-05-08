@@ -8,8 +8,8 @@ import (
 )
 
 type ServiceTab struct {
-	XMLName  xml.Name  `xml:"serviceTab"`
-	Services []Service `xml:"service"`
+	XMLName  xml.Name  `xml:"ServiceTab"`
+	Services []Service `xml:"Service"`
 }
 type Service struct {
 	Name          string `xml:"Name,attr"`

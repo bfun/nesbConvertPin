@@ -9,7 +9,7 @@ import (
 
 func get_svcname_by_procode() (services map[string]map[string][]string) {
 	services = make(map[string]map[string][]string)
-	fileName := path.Join(getRootDir(), "etc/enum/get_svcname_by_path.txt")
+	fileName := path.Join(getRootDir(), "etc/enum/get_svcname_by_procode.txt")
 	file, err := os.Open(fileName)
 	defer file.Close()
 	if err != nil {
