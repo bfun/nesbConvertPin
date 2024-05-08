@@ -11,7 +11,7 @@ func getKindFilenamesFromProject(prefix string) []string {
 		if !strings.HasPrefix(line, prefix) {
 			continue
 		}
-		if !strings.Contains(line, "_SVR") && !strings.Contains(line, "_SGET") && !strings.Contains(line, "_PAY") && !strings.Contains(line, "_CLS") {
+		if !strings.HasPrefix(prefix, "Format") && !strings.Contains(line, "_SVR") && !strings.Contains(line, "_SGET") && !strings.Contains(line, "_PAY") && !strings.Contains(line, "_CLS") {
 			continue
 		}
 		line = strings.TrimSuffix(strings.TrimPrefix(line, prefix), `"`)
