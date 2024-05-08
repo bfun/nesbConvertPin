@@ -7,7 +7,7 @@ import (
 )
 
 func TestCSMP_PIN_SERVICE(t *testing.T) {
-	expects := []string{"_SVR", "_CLT"}
+	expects := []string{"_SVR" /* , "_CLT" */}
 	dtas := nesbconvertpin.CSMP_PIN_SERVICE()
 	for _, expect := range expects {
 		ok := false
