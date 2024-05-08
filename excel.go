@@ -34,6 +34,7 @@ func writeSheet(f *excelize.File, sheetName string, result map[string]DtaConvert
 	f.SetCellStr(sheetName, "C1", "报文格式")
 	f.SetCellStr(sheetName, "D1", "转加密字段")
 	i := 0
+	trimPOBS(result)
 	var dtas []string
 	for k, _ := range result {
 		dtas = append(dtas, k)

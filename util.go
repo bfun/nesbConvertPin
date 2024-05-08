@@ -22,6 +22,7 @@ func fileScanner(filename string) (file *os.File, scanner *bufio.Scanner) {
 		panic(err)
 	}
 	scanner = bufio.NewScanner(file)
+	return
 }
 func getGbFileDecoder(fileName string) *xml.Decoder {
 	buf, err := os.ReadFile(fileName)

@@ -12,6 +12,5 @@ func main() {
 	meshGets(mdta, gets, mpes)
 	patchJSON_SVR(mdta, mpes)
 	patchCSMP_PIN_SERVICE(mdta, mcps)
-	trimPOBS(mdta)
 	writeResult(mdta)
 }
