@@ -8,7 +8,7 @@ import (
 
 func TestParseAllDtaParmXml(t *testing.T) {
 	m := nesbconvertpin.ParseAllDtaParmXml()
-	var name, evtIprtcfmtBegin, evtIprtcfmtEnd, evtIfmtEnd, evtOfmtBegin, evtOprtcfmtBegin bool
+	var name, evtIprtcfmtBegin, evtIprtcfmtEnd, evtIfmtEnd, evtOfmtBegin, evtOprtcfmtBegin, convertPin bool
 	for k, v := range m {
 		fmt.Println(k, v)
 		if v.Name != "" {
@@ -29,6 +29,9 @@ func TestParseAllDtaParmXml(t *testing.T) {
 		if v.EvtOprtcfmtBegin != "" {
 			evtOprtcfmtBegin = true
 		}
+		if v.ConvertPin {
+			convertPin = true
+		}
 	}
 	if !name {
 		t.Error("Name is missing")
@@ -47,5 +50,8 @@ func TestParseAllDtaParmXml(t *testing.T) {
 	}
 	if !evtOprtcfmtBegin {
 		t.Error("EvtOprtcfmtBegin is missing")
+	}
+	if !convertPin {
+		t.Error("ConvertPin is missing")
 	}
 }

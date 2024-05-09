@@ -14,14 +14,26 @@ type DataTransferAdapter struct {
 	EvtIfmtEnd       string   `xml:"EvtIfmtEnd"`
 	EvtOfmtBegin     string   `xml:"EvtOfmtBegin"`
 	EvtOprtcfmtBegin string   `xml:"EvtOprtcfmtBegin"`
+	ConvertPin       bool
+	Services         map[string]Service
 }
 
-func trimDtaParmCDATA(d DataTransferAdapter) {
+func trimDtaParmCDATA(d *DataTransferAdapter) {
 	d.EvtIprtcfmtBegin = strings.TrimSpace(d.EvtIprtcfmtBegin)
 	d.EvtIprtcfmtEnd = strings.TrimSpace(d.EvtIprtcfmtEnd)
 	d.EvtIfmtEnd = strings.TrimSpace(d.EvtIfmtEnd)
 	d.EvtOfmtBegin = strings.TrimSpace(d.EvtOfmtBegin)
 	d.EvtOprtcfmtBegin = strings.TrimSpace(d.EvtOprtcfmtBegin)
+}
+
+func judgeConvertPin(dtas map[string]DataTransferAdapter) {
+	target := "nesbConvertPin"
+	for k, v := range dtas {
+		if strings.Contains(v.EvtIfmtEnd, target) {
+			v.ConvertPin = true
+			dtas[k] = v
+		}
+	}
 }
 func parseOneDtaParmXml(fileName string) DataTransferAdapter {
 	fullPath := path.Join(getRootDir(), fileName)
@@ -31,7 +43,7 @@ func parseOneDtaParmXml(fileName string) DataTransferAdapter {
 	if err != nil {
 		panic(err)
 	}
-	trimDtaParmCDATA(v)
+	trimDtaParmCDATA(&v)
 	return v
 }
 
@@ -42,6 +54,7 @@ func ParseAllDtaParmXml() map[string]DataTransferAdapter {
 		dta := parseOneDtaParmXml(file)
 		m[dta.Name] = dta
 	}
+	judgeConvertPin(m)
 	return m
 }
 
