@@ -31,15 +31,15 @@ func getPinElemsByService(dta string, svc string, mpes map[string][]PinElem) []P
 	}
 	return pes
 }
-func meshFmt(dtas map[string]DtaConvertPin, fmts map[string]Format, mpes map[string][]PinElem) {
+func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes map[string][]PinElem) {
 	for kd, vd := range dtas {
 		for ks, vs := range vd.Services {
-			if !vd.All && !vs.IsConvertPin {
+			if !vd.ConvertPin && !vs.IsConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.All, vs.IsConvertPin)
+				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.ConvertPin, vs.IsConvertPin)
 				continue
 			}
 			var elems []PinElem
@@ -69,12 +69,12 @@ func meshFmt(dtas map[string]DtaConvertPin, fmts map[string]Format, mpes map[str
 			vs.Matched = elems
 			vd.Services[ks] = vs
 			dtas[kd] = vd
-			fmt.Printf("meshFmt matched: %v.%v DTA_%v/Service_%v fmt[%v] elems[%v]\n", kd, ks, vd.All, vs.IsConvertPin, vs.IFmt, elems)
+			fmt.Printf("meshFmt matched: %v.%v DTA_%v/Service_%v fmt[%v] elems[%v]\n", kd, ks, vd.ConvertPin, vs.IsConvertPin, vs.IFmt, elems)
 		}
 	}
 }
 
-func meshTxml(dtas map[string]DtaConvertPin, txml map[string]map[string]NesbTxml, mpes map[string][]PinElem) {
+func meshTxml(dtas map[string]DataTransferAdapter, txml map[string]map[string]NesbTxml, mpes map[string][]PinElem) {
 	for kd, vd := range txml {
 		dta, ok := dtas[kd]
 		if !ok {
@@ -87,12 +87,12 @@ func meshTxml(dtas map[string]DtaConvertPin, txml map[string]map[string]NesbTxml
 				svc = Service{}
 				dta.Services[ks] = svc
 			}
-			if !dta.All && !svc.IsConvertPin {
+			if !dta.ConvertPin && !svc.IsConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? nesb_txml %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.All, svc.IsConvertPin)
+				fmt.Printf("??? nesb_txml %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.IsConvertPin)
 				continue
 			}
 			var matched []PinElem
@@ -129,13 +129,13 @@ func meshTxml(dtas map[string]DtaConvertPin, txml map[string]map[string]NesbTxml
 			svc2.Matched = matched
 			svc2.By = "nesb_txml.txt"
 			dta.Services[ks] = svc2
-			fmt.Printf("meshTxml matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.All, svc.IsConvertPin, svc2.By, elems)
+			fmt.Printf("meshTxml matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.IsConvertPin, svc2.By, elems)
 		}
 		dtas[kd] = dta
 	}
 }
 
-func meshGets(dtas map[string]DtaConvertPin, gets map[string]map[string][]string, mpes map[string][]PinElem) {
+func meshGets(dtas map[string]DataTransferAdapter, gets map[string]map[string][]string, mpes map[string][]PinElem) {
 	for kd, vd := range gets {
 		dta, ok := dtas[kd]
 		if !ok {
@@ -148,12 +148,12 @@ func meshGets(dtas map[string]DtaConvertPin, gets map[string]map[string][]string
 				svc = Service{}
 				dta.Services[ks] = svc
 			}
-			if !dta.All && !svc.IsConvertPin {
+			if !dta.ConvertPin && !svc.IsConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? get_svcname_by_procode %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.All, svc.IsConvertPin)
+				fmt.Printf("??? get_svcname_by_procode %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.IsConvertPin)
 				continue
 			}
 			var matched []PinElem
@@ -188,18 +188,18 @@ func meshGets(dtas map[string]DtaConvertPin, gets map[string]map[string][]string
 				svc2.Matched = matched
 				svc2.By = "get_svcname_by_procode.txt"
 				dta.Services[cod] = svc2
-				fmt.Printf("meshGets matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.All, svc.IsConvertPin, svc2.By, elems)
+				fmt.Printf("meshGets matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.IsConvertPin, svc2.By, elems)
 			}
 		}
 		dtas[kd] = dta
 	}
 }
 
-func patchJSON_SVR(dtas map[string]DtaConvertPin, mpes map[string][]PinElem) {
+func patchJSON_SVR(dtas map[string]DataTransferAdapter, mpes map[string][]PinElem) {
 	dtaNames := []string{"JSON_SVR", "JSON1_SVR"}
 	for _, dtaName := range dtaNames {
-		var dcp DtaConvertPin
-		dcp.Services = make(map[string]Service)
+		var dta DataTransferAdapter
+		dta.Services = make(map[string]Service)
 		for k, v := range mpes {
 			if !strings.HasPrefix(k, dtaName) {
 				continue
@@ -214,13 +214,13 @@ func patchJSON_SVR(dtas map[string]DtaConvertPin, mpes map[string][]PinElem) {
 			s.PinElems = v[:]
 			s.Matched = v[:]
 			s.By = "CSMP_PIN_ELEM.txt"
-			dcp.Services[s.Name] = s
+			dta.Services[s.Name] = s
 		}
-		dtas[dtaName] = dcp
+		dtas[dtaName] = dta
 	}
 }
 
-func patchCSMP_PIN_SERVICE(dtas map[string]DtaConvertPin, mcps map[string]map[string][]PinElem) {
+func patchCSMP_PIN_SERVICE(dtas map[string]DataTransferAdapter, mcps map[string]map[string][]PinElem) {
 	i := 0
 	for kd, vd := range mcps {
 		dta, ok := dtas[kd]
@@ -242,19 +242,19 @@ func patchCSMP_PIN_SERVICE(dtas map[string]DtaConvertPin, mcps map[string]map[st
 	}
 }
 
-func trimPOBS(dtas map[string]DtaConvertPin) {
+func trimPOBS(dtas map[string]DataTransferAdapter) {
 	target := "POBS_SVR"
 	dta, ok := dtas[target]
 	if !ok {
-		dta = DtaConvertPin{}
+		dta = DataTransferAdapter{}
 	}
 	svcs := make(map[string]Service)
 	for kd, vd := range dtas {
-		if !strings.Contains(kd, "POBS") {
+		if !strings.Contains(kd, "POBS") || !strings.Contains(kd, "_SVR") {
 			continue
 		}
 		for ks, vs := range vd.Services {
-			if vd.All {
+			if vd.ConvertPin {
 				vs.IsConvertPin = true
 			}
 			if vs.IsConvertPin && len(vs.Matched) > 0 {

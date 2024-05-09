@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func writeResult(result map[string]DtaConvertPin) {
+func writeResult(result map[string]DataTransferAdapter) {
 	f := excelize.NewFile()
 	defer f.Close()
 	sheetName := "转加密交易"
@@ -20,7 +20,7 @@ func writeResult(result map[string]DtaConvertPin) {
 	}
 }
 
-func writeSheet(f *excelize.File, sheetName string, result map[string]DtaConvertPin) {
+func writeSheet(f *excelize.File, sheetName string, result map[string]DataTransferAdapter) {
 	style, err := f.NewStyle(&excelize.Style{NumFmt: 1})
 	if err != nil {
 		panic(err)
@@ -46,8 +46,10 @@ func writeSheet(f *excelize.File, sheetName string, result map[string]DtaConvert
 		}
 		dta := result[kd]
 		var svcs []string
-		for k, _ := range dta.Services {
-			svcs = append(svcs, k)
+		for k, v := range dta.Services {
+			if dta.ConvertPin || v.IsConvertPin {
+				svcs = append(svcs, k)
+			}
 		}
 		sort.Strings(svcs)
 		for _, ks := range svcs {

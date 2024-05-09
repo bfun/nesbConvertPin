@@ -58,6 +58,7 @@ func ParseAllDtaParmXml() map[string]DataTransferAdapter {
 	return m
 }
 
+/*
 type DtaConvertPin struct {
 	All      bool
 	Services map[string]Service
@@ -101,9 +102,10 @@ func getAllConvertPinDtasByDtaParm() map[string]DtaConvertPin {
 	}
 	return m
 }
+*/
 
-func getAllConvertPinDtas() map[string]DtaConvertPin {
-	dtas := getAllConvertPinDtasByDtaParm()
+func getAllConvertPinDtas() map[string]DataTransferAdapter {
+	dtas := ParseAllDtaParmXml()
 	svcs := parseAllServiceXml()
 	for k, v := range svcs {
 		d, ok := dtas[k]
@@ -111,10 +113,10 @@ func getAllConvertPinDtas() map[string]DtaConvertPin {
 			d.Services = v
 			dtas[k] = d
 		} else {
-			var dcp DtaConvertPin
-			dcp.All = false
-			dcp.Services = v
-			dtas[k] = dcp
+			var dta DataTransferAdapter
+			dta.ConvertPin = false
+			dta.Services = v
+			dtas[k] = dta
 		}
 	}
 	return dtas
