@@ -5,7 +5,7 @@ func Main() {
 	gets := get_svcname_by_procode()
 	txml := nesb_txml()
 	mpes := CSMP_PIN_ELEM()
-	mfmt := parseAllFormatXml()
+	mfmt := ParseAllFormatXml()
 	mdta := getAllConvertPinDtas()
 	meshFmt(mdta, mfmt, mpes)
 	meshTxml(mdta, txml, mpes)

@@ -3,6 +3,7 @@ package nesbconvertpin
 import (
 	"encoding/xml"
 	"path"
+	"strings"
 )
 
 type FormatTab struct {
@@ -21,6 +22,16 @@ type FormatItem struct {
 	XmlType  string `xml:"XmlType,attr"`
 	XmlName  string `xml:"XmlName,attr"`
 	SubName  string `xml:"SubName,attr"`
+	SubExpr  string `xml:"SubExpr"`
+}
+
+func trimFormatCDATA(formats map[string]Format) {
+	for kf, vf := range formats {
+		for ki, vi := range vf.Items {
+			vf.Items[ki].SubExpr = strings.TrimSpace(vi.SubExpr)
+		}
+		formats[kf] = vf
+	}
 }
 
 func formatArrayToMap(formats []Format, m map[string]Format) {
@@ -39,11 +50,12 @@ func parseOneFormatXml(fileName string, m map[string]Format) {
 	formatArrayToMap(v.Formats, m)
 }
 
-func parseAllFormatXml() map[string]Format {
+func ParseAllFormatXml() map[string]Format {
 	m := make(map[string]Format)
 	files := getFormatFiles()
 	for _, f := range files {
 		parseOneFormatXml(f, m)
 	}
+	trimFormatCDATA(m)
 	return m
 }

@@ -83,6 +83,7 @@ func trimServiceCDATA(st *ServiceTab) {
 			}
 			v.TcElems = strings.Split(s[1], "|")
 		}
+		v.EvtAcallBegin = strings.TrimSpace(v.EvtAcallBegin)
 		st.Services[i] = v
 	}
 }
