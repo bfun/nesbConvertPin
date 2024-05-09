@@ -16,6 +16,13 @@ type DataTransferAdapter struct {
 	EvtOprtcfmtBegin string   `xml:"EvtOprtcfmtBegin"`
 }
 
+func trimDtaParmCDATA(d DataTransferAdapter) {
+	d.EvtIprtcfmtBegin = strings.TrimSpace(d.EvtIprtcfmtBegin)
+	d.EvtIprtcfmtEnd = strings.TrimSpace(d.EvtIprtcfmtEnd)
+	d.EvtIfmtEnd = strings.TrimSpace(d.EvtIfmtEnd)
+	d.EvtOfmtBegin = strings.TrimSpace(d.EvtOfmtBegin)
+	d.EvtOprtcfmtBegin = strings.TrimSpace(d.EvtOprtcfmtBegin)
+}
 func parseOneDtaParmXml(fileName string) DataTransferAdapter {
 	fullPath := path.Join(getRootDir(), fileName)
 	var v DataTransferAdapter
@@ -24,7 +31,7 @@ func parseOneDtaParmXml(fileName string) DataTransferAdapter {
 	if err != nil {
 		panic(err)
 	}
-	// trimServiceCDATA(&v)
+	trimDtaParmCDATA(v)
 	return v
 }
 
