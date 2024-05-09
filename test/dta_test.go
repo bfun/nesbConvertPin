@@ -8,50 +8,62 @@ import (
 
 func TestParseAllDtaParmXml(t *testing.T) {
 	m := nesbconvertpin.ParseAllDtaParmXml()
-	var name, evtIprtcfmtBegin, evtIprtcfmtEnd, evtIfmtEnd, evtOfmtBegin, evtOprtcfmtBegin, convertPin bool
+	var Name, EvtIprtcfmtBegin, EvtIprtcfmtEnd, EvtIfmtEnd, EvtOfmtBegin, EvtOprtcfmtBegin, ConvertPin, Services, NESB_SDTA_NAME bool
 	for k, v := range m {
-		fmt.Println(k, v)
+		fmt.Println(k, v.NESB_SDTA_NAME)
 		if v.Name != "" {
-			name = true
+			Name = true
 		}
 		if v.EvtIprtcfmtBegin != "" {
-			evtIprtcfmtBegin = true
+			EvtIprtcfmtBegin = true
 		}
 		if v.EvtIprtcfmtEnd != "" {
-			evtIprtcfmtEnd = true
+			EvtIprtcfmtEnd = true
 		}
 		if v.EvtIfmtEnd != "" {
-			evtIfmtEnd = true
+			EvtIfmtEnd = true
 		}
 		if v.EvtOfmtBegin != "" {
-			evtOfmtBegin = true
+			EvtOfmtBegin = true
 		}
 		if v.EvtOprtcfmtBegin != "" {
-			evtOprtcfmtBegin = true
+			EvtOprtcfmtBegin = true
 		}
 		if v.ConvertPin {
-			convertPin = true
+			ConvertPin = true
+		}
+		if len(v.Services) > 0 {
+			Services = true
+		}
+		if v.NESB_SDTA_NAME != "" {
+			NESB_SDTA_NAME = true
 		}
 	}
-	if !name {
+	if !Name {
 		t.Error("Name is missing")
 	}
-	if !evtIprtcfmtBegin {
+	if !EvtIprtcfmtBegin {
 		t.Error("EvtIprtcfmtBegin is missing")
 	}
-	if !evtIprtcfmtEnd {
+	if !EvtIprtcfmtEnd {
 		t.Error("EvtIprtcfmtEnd is missing")
 	}
-	if !evtIfmtEnd {
+	if !EvtIfmtEnd {
 		t.Error("EvtIfmtEnd is missing")
 	}
-	if !evtOfmtBegin {
+	if !EvtOfmtBegin {
 		t.Error("EvtOfmtBegin is missing")
 	}
-	if !evtOprtcfmtBegin {
+	if !EvtOprtcfmtBegin {
 		t.Error("EvtOprtcfmtBegin is missing")
 	}
-	if !convertPin {
+	if !ConvertPin {
 		t.Error("ConvertPin is missing")
+	}
+	if !Services {
+		t.Error("Services is missing")
+	}
+	if !NESB_SDTA_NAME {
+		t.Error("NESB_SDTA_NAME is missing")
 	}
 }

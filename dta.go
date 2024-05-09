@@ -3,6 +3,7 @@ package nesbconvertpin
 import (
 	"encoding/xml"
 	"path"
+	"regexp"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ type DataTransferAdapter struct {
 	EvtOprtcfmtBegin string   `xml:"EvtOprtcfmtBegin"`
 	ConvertPin       bool
 	Services         map[string]Service
+	NESB_SDTA_NAME   string
 }
 
 func trimDtaParmCDATA(d *DataTransferAdapter) {
@@ -31,6 +33,28 @@ func judgeConvertPin(dtas map[string]DataTransferAdapter) {
 	for k, v := range dtas {
 		if strings.Contains(v.EvtIfmtEnd, target) {
 			v.ConvertPin = true
+			dtas[k] = v
+		}
+	}
+}
+
+func parseNESB_SDTA_NAME(dtas map[string]DataTransferAdapter) {
+	target := "$NESB_SDTA_NAME"
+	re := regexp.MustCompile(`\$NESB_SDTA_NAME="(.*?)"`)
+	for k, v := range dtas {
+		if strings.Contains(v.EvtIprtcfmtBegin, target) {
+			s := re.FindStringSubmatch(v.EvtIprtcfmtBegin)
+			if len(s) == 2 {
+				v.NESB_SDTA_NAME = s[1]
+			}
+		}
+		if strings.Contains(v.EvtIprtcfmtEnd, target) {
+			s := re.FindStringSubmatch(v.EvtIprtcfmtEnd)
+			if len(s) == 2 {
+				v.NESB_SDTA_NAME = s[1]
+			}
+		}
+		if v.NESB_SDTA_NAME != "" {
 			dtas[k] = v
 		}
 	}
@@ -55,6 +79,7 @@ func ParseAllDtaParmXml() map[string]DataTransferAdapter {
 		m[dta.Name] = dta
 	}
 	judgeConvertPin(m)
+	parseNESB_SDTA_NAME(m)
 	return m
 }
 
