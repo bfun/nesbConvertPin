@@ -43,7 +43,11 @@ func trimFormatCDATA(formats map[string]Format) {
 				if len(fs) != 3 {
 					panic(kf + s)
 				}
-				vf.SubFmts = append(vf.SubFmts, fs[1:]...)
+				for _, f := range fs[1:] {
+					f = strings.Replace(f, " ", "", -1)
+					f = strings.Replace(f, `"`, "", -1)
+					vf.SubFmts = append(vf.SubFmts, f)
+				}
 			}
 			vf.Items[ki].SubExpr = s
 		}

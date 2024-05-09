@@ -18,7 +18,7 @@ func TestParseAllFormatXml(t *testing.T) {
 		}
 		if len(vf.SubFmts) > 0 {
 			SubFmts = true
-			fmt.Println(kf, vf.SubFmts)
+			fmt.Println(kf, "SubFmts", vf.SubFmts)
 		}
 	}
 	if !SubFmts {
