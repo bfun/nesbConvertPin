@@ -12,15 +12,17 @@ type ServiceTab struct {
 	Services []Service `xml:"Service"`
 }
 type Service struct {
-	Name          string `xml:"Name,attr"`
-	IFmt          string `xml:"IFmt,attr"`
-	EvtIfmtEnd    string `xml:"EvtIfmtEnd"`
-	EvtAcallBegin string `xml:"EvtAcallBegin"`
-	IsConvertPin  bool
-	PinElems      []PinElem
-	Matched       []PinElem
-	TcElems       []string
-	By            string
+	Name           string `xml:"Name,attr"`
+	IFmt           string `xml:"IFmt,attr"`
+	EvtIfmtBegin   string `xml:"EvtIfmtBegin"`
+	EvtIfmtEnd     string `xml:"EvtIfmtEnd"`
+	EvtAcallBegin  string `xml:"EvtAcallBegin"`
+	NESB_SDTA_NAME string
+	ConvertPin     bool
+	PinElems       []PinElem
+	Matched        []PinElem
+	TcElems        []string
+	By             string
 }
 
 func (i *Service) Clone() Service {
@@ -29,7 +31,7 @@ func (i *Service) Clone() Service {
 	s.IFmt = i.IFmt
 	s.EvtIfmtEnd = i.EvtIfmtEnd
 	s.EvtAcallBegin = i.EvtAcallBegin
-	s.IsConvertPin = i.IsConvertPin
+	s.ConvertPin = i.ConvertPin
 	s.PinElems = make([]PinElem, len(i.PinElems))
 	for _, v := range i.PinElems {
 		s.PinElems = append(s.PinElems, v)
@@ -47,13 +49,23 @@ func (i *Service) Clone() Service {
 }
 
 func trimServiceCDATA(st *ServiceTab) {
+	sdta := regexp.MustCompile(`\$NESB_SDTA_NAME="(.*?)"`)
 	tagdata := regexp.MustCompile(`nesb_get_tagdata\(.*?, *"(.*?)"\)`)
 	xmlsign := regexp.MustCompile(`cbs_get_data_by_xmlsign\(.*?,.*?, *"(.*?)"\)`)
 	for i, v := range st.Services {
-		e := strings.TrimSpace(v.EvtIfmtEnd)
-		st.Services[i].EvtIfmtEnd = e
+		e := strings.TrimSpace(v.EvtIfmtBegin)
+		if strings.Contains(e, "$NESB_SDTA_NAME") {
+			s := sdta.FindStringSubmatch(e)
+			if len(s) != 2 {
+				panic(v)
+			}
+			v.NESB_SDTA_NAME = s[1]
+		}
+		v.EvtIfmtBegin = e
+		e = strings.TrimSpace(v.EvtIfmtEnd)
+		v.EvtIfmtEnd = e
 		if strings.Contains(e, "nesbConvertPin") {
-			st.Services[i].IsConvertPin = true
+			v.ConvertPin = true
 		}
 		// nesb_get_tagdata("__PACKDATA", "stdpriacno|stdpindata")
 		if strings.Contains(e, "nesb_get_tagdata") {
@@ -61,7 +73,7 @@ func trimServiceCDATA(st *ServiceTab) {
 			if len(s) != 2 {
 				panic(v)
 			}
-			st.Services[i].TcElems = strings.Split(s[1], "|")
+			v.TcElems = strings.Split(s[1], "|")
 		}
 		// cbs_get_data_by_xmlsign("0", "__PACKDATA", "stdadddtap|stdpriacno|stdpindata")
 		if strings.Contains(e, "cbs_get_data_by_xmlsign") {
@@ -69,8 +81,9 @@ func trimServiceCDATA(st *ServiceTab) {
 			if len(s) != 2 {
 				panic(v)
 			}
-			st.Services[i].TcElems = strings.Split(s[1], "|")
+			v.TcElems = strings.Split(s[1], "|")
 		}
+		st.Services[i] = v
 	}
 }
 
@@ -99,7 +112,7 @@ func parseOneServiceXml(fileName string) (dtaName string, services map[string]Se
 	return
 }
 
-func parseAllServiceXml() map[string]map[string]Service {
+func ParseAllServiceXml() map[string]map[string]Service {
 	m := make(map[string]map[string]Service)
 	files := getServiceFiles()
 	for _, file := range files {

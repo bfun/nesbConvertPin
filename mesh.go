@@ -34,12 +34,12 @@ func getPinElemsByService(dta string, svc string, mpes map[string][]PinElem) []P
 func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes map[string][]PinElem) {
 	for kd, vd := range dtas {
 		for ks, vs := range vd.Services {
-			if !vd.ConvertPin && !vs.IsConvertPin {
+			if !vd.ConvertPin && !vs.ConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.ConvertPin, vs.IsConvertPin)
+				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.ConvertPin, vs.ConvertPin)
 				continue
 			}
 			var elems []PinElem
@@ -69,7 +69,7 @@ func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes m
 			vs.Matched = elems
 			vd.Services[ks] = vs
 			dtas[kd] = vd
-			fmt.Printf("meshFmt matched: %v.%v DTA_%v/Service_%v fmt[%v] elems[%v]\n", kd, ks, vd.ConvertPin, vs.IsConvertPin, vs.IFmt, elems)
+			fmt.Printf("meshFmt matched: %v.%v DTA_%v/Service_%v fmt[%v] elems[%v]\n", kd, ks, vd.ConvertPin, vs.ConvertPin, vs.IFmt, elems)
 		}
 	}
 }
@@ -87,12 +87,12 @@ func meshTxml(dtas map[string]DataTransferAdapter, txml map[string]map[string]Ne
 				svc = Service{}
 				dta.Services[ks] = svc
 			}
-			if !dta.ConvertPin && !svc.IsConvertPin {
+			if !dta.ConvertPin && !svc.ConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? nesb_txml %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.IsConvertPin)
+				fmt.Printf("??? nesb_txml %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.ConvertPin)
 				continue
 			}
 			var matched []PinElem
@@ -129,7 +129,7 @@ func meshTxml(dtas map[string]DataTransferAdapter, txml map[string]map[string]Ne
 			svc2.Matched = matched
 			svc2.By = "nesb_txml.txt"
 			dta.Services[ks] = svc2
-			fmt.Printf("meshTxml matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.IsConvertPin, svc2.By, elems)
+			fmt.Printf("meshTxml matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.ConvertPin, svc2.By, elems)
 		}
 		dtas[kd] = dta
 	}
@@ -148,12 +148,12 @@ func meshGets(dtas map[string]DataTransferAdapter, gets map[string]map[string][]
 				svc = Service{}
 				dta.Services[ks] = svc
 			}
-			if !dta.ConvertPin && !svc.IsConvertPin {
+			if !dta.ConvertPin && !svc.ConvertPin {
 				continue
 			}
 			pes := getPinElemsByService(kd, ks, mpes)
 			if len(pes) == 0 {
-				fmt.Printf("??? get_svcname_by_procode %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.IsConvertPin)
+				fmt.Printf("??? get_svcname_by_procode %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, dta.ConvertPin, svc.ConvertPin)
 				continue
 			}
 			var matched []PinElem
@@ -188,7 +188,7 @@ func meshGets(dtas map[string]DataTransferAdapter, gets map[string]map[string][]
 				svc2.Matched = matched
 				svc2.By = "get_svcname_by_procode.txt"
 				dta.Services[cod] = svc2
-				fmt.Printf("meshGets matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.IsConvertPin, svc2.By, elems)
+				fmt.Printf("meshGets matched: %v.%v DTA_%v/Service_%v %v elems[%v]\n", kd, ks, dta.ConvertPin, svc.ConvertPin, svc2.By, elems)
 			}
 		}
 		dtas[kd] = dta
@@ -210,7 +210,7 @@ func patchJSON_SVR(dtas map[string]DataTransferAdapter, mpes map[string][]PinEle
 			}
 			var s Service
 			s.Name = ds[1]
-			s.IsConvertPin = true
+			s.ConvertPin = true
 			s.PinElems = v[:]
 			s.Matched = v[:]
 			s.By = "CSMP_PIN_ELEM.txt"
@@ -230,7 +230,7 @@ func patchCSMP_PIN_SERVICE(dtas map[string]DataTransferAdapter, mcps map[string]
 		for ks, vs := range vd {
 			var s Service
 			s.Name = ks
-			s.IsConvertPin = true
+			s.ConvertPin = true
 			s.PinElems = vs[:]
 			s.Matched = vs[:]
 			s.By = "CSMP_PIN_SERVICE.txt"
@@ -255,9 +255,9 @@ func trimPOBS(dtas map[string]DataTransferAdapter) {
 		}
 		for ks, vs := range vd.Services {
 			if vd.ConvertPin {
-				vs.IsConvertPin = true
+				vs.ConvertPin = true
 			}
-			if vs.IsConvertPin && len(vs.Matched) > 0 {
+			if vs.ConvertPin && len(vs.Matched) > 0 {
 				svcs[ks] = vs
 			}
 		}

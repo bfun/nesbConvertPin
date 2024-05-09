@@ -131,7 +131,7 @@ func getAllConvertPinDtasByDtaParm() map[string]DtaConvertPin {
 
 func getAllConvertPinDtas() map[string]DataTransferAdapter {
 	dtas := ParseAllDtaParmXml()
-	svcs := parseAllServiceXml()
+	svcs := ParseAllServiceXml()
 	for k, v := range svcs {
 		d, ok := dtas[k]
 		if ok {

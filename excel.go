@@ -47,7 +47,7 @@ func writeSheet(f *excelize.File, sheetName string, result map[string]DataTransf
 		dta := result[kd]
 		var svcs []string
 		for k, v := range dta.Services {
-			if dta.ConvertPin || v.IsConvertPin {
+			if dta.ConvertPin || v.ConvertPin {
 				svcs = append(svcs, k)
 			}
 		}
