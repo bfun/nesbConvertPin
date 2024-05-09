@@ -31,6 +31,37 @@ func getPinElemsByService(dta string, svc string, mpes map[string][]PinElem) []P
 	}
 	return pes
 }
+
+func findPinElemsInFormat(dta, svc, fmt string, fmts map[string]Format, pes []PinElem) []PinElem {
+	var elems []PinElem
+	f, ok := fmts[fmt]
+	if !ok {
+		panic(dta + svc + fmt)
+	}
+	for _, pe := range pes {
+		var pin, acc bool
+		for _, vi := range f.Items {
+			if vi.ElemName == pe.Pin {
+				pin = true
+			}
+		}
+		for _, vi := range f.Items {
+			if vi.ElemName == pe.Acc {
+				acc = true
+			}
+		}
+		if pin && acc {
+			elems = append(elems, pe)
+		}
+	}
+	for _, sub := range f.SubFmts {
+		subElems := findPinElemsInFormat(dta, svc, sub, fmts, pes)
+		if len(subElems) > 0 {
+			elems = append(elems, subElems...)
+		}
+	}
+	return elems
+}
 func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes map[string][]PinElem) {
 	for kd, vd := range dtas {
 		for ks, vs := range vd.Services {
@@ -42,27 +73,30 @@ func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes m
 				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.ConvertPin, vs.ConvertPin)
 				continue
 			}
-			var elems []PinElem
-			f, ok := fmts[vs.IFmt]
-			if !ok {
-				panic(vs.IFmt)
-			}
-			for _, pe := range pes {
-				var pin, acc bool
-				for _, vi := range f.Items {
-					if vi.ElemName == pe.Pin {
-						pin = true
+			/*
+				var elems []PinElem
+				f, ok := fmts[vs.IFmt]
+				if !ok {
+					panic(vs.IFmt)
+				}
+				for _, pe := range pes {
+					var pin, acc bool
+					for _, vi := range f.Items {
+						if vi.ElemName == pe.Pin {
+							pin = true
+						}
+					}
+					for _, vi := range f.Items {
+						if vi.ElemName == pe.Acc {
+							acc = true
+						}
+					}
+					if pin && acc {
+						elems = append(elems, pe)
 					}
 				}
-				for _, vi := range f.Items {
-					if vi.ElemName == pe.Acc {
-						acc = true
-					}
-				}
-				if pin && acc {
-					elems = append(elems, pe)
-				}
-			}
+			*/
+			elems := findPinElemsInFormat(kd, ks, vs.IFmt, fmts, pes)
 			if len(elems) == 0 {
 				continue
 			}
