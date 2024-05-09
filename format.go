@@ -3,6 +3,7 @@ package nesbconvertpin
 import (
 	"encoding/xml"
 	"path"
+	"regexp"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ type Format struct {
 	FmtName string       `xml:"FmtName,attr"`
 	FmtType string       `xml:"FmtType,attr"`
 	Items   []FormatItem `xml:"ItemTab>Item"`
+	SubFmts []string
 }
 type FormatItem struct {
 	ItemType string `xml:"ItemType,attr"`
@@ -26,9 +28,24 @@ type FormatItem struct {
 }
 
 func trimFormatCDATA(formats map[string]Format) {
+	re := regexp.MustCompile(`.*?\?(.*?):(.*?)`)
 	for kf, vf := range formats {
 		for ki, vi := range vf.Items {
-			vf.Items[ki].SubExpr = strings.TrimSpace(vi.SubExpr)
+			if vi.ItemType == "fmt" {
+				if vi.SubName == "" {
+					panic(kf + "/fmt/SubName empty")
+				}
+				vf.SubFmts = append(vf.SubFmts, vi.SubName)
+			}
+			s := strings.TrimSpace(vi.SubExpr)
+			if s != "" && strings.Contains(s, "?") && strings.Contains(s, ":") {
+				fs := re.FindStringSubmatch(s)
+				if len(fs) != 3 {
+					panic(kf + s)
+				}
+				vf.SubFmts = append(vf.SubFmts, fs[1:]...)
+			}
+			vf.Items[ki].SubExpr = s
 		}
 		formats[kf] = vf
 	}
