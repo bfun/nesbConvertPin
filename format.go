@@ -29,7 +29,7 @@ type FormatItem struct {
 
 func trimFormatCDATA(formats map[string]Format) {
 	re2 := regexp.MustCompile(`.*?\?(.*?):(.*)`)
-	re3 := regexp.MustCompile(`.*?\?(.*?):(.*):(.*)`)
+	re3 := regexp.MustCompile(`.*\?\(.*\?(.*?):(.*)\):(.*)`)
 	for kf, vf := range formats {
 		for ki, vi := range vf.Items {
 			if vi.ItemType == "fmt" {
