@@ -28,7 +28,8 @@ type FormatItem struct {
 }
 
 func trimFormatCDATA(formats map[string]Format) {
-	re := regexp.MustCompile(`.*?\?(.*?):(.*?)`)
+	re2 := regexp.MustCompile(`.*?\?(.*?):(.*)`)
+	re3 := regexp.MustCompile(`.*?\?(.*?):(.*):(.*)`)
 	for kf, vf := range formats {
 		for ki, vi := range vf.Items {
 			if vi.ItemType == "fmt" {
@@ -39,9 +40,16 @@ func trimFormatCDATA(formats map[string]Format) {
 			}
 			s := strings.TrimSpace(vi.SubExpr)
 			if s != "" && strings.Contains(s, "?") && strings.Contains(s, ":") {
-				fs := re.FindStringSubmatch(s)
-				if len(fs) != 3 {
-					panic(kf + s)
+				fs := re3.FindStringSubmatch(s)
+				if len(fs) > 0 {
+					if len(fs) != 4 {
+						panic(kf + s)
+					}
+				} else {
+					fs = re2.FindStringSubmatch(s)
+					if len(fs) != 3 {
+						panic(kf + s)
+					}
 				}
 				for _, f := range fs[1:] {
 					f = strings.Replace(f, " ", "", -1)
