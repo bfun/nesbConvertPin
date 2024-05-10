@@ -63,6 +63,8 @@ func trimFormatCDATA(formats map[string]Format) {
 					}
 				}
 				vf.Items[ki].SubExpr = s
+			} else {
+				vf.Items[ki].SubExpr = ""
 			}
 		}
 		formats[kf] = vf
