@@ -105,8 +105,11 @@ func findPinElemsInFormat(dta, svc, format string, dtas map[string]DataTransferA
 		}
 	}
 	for _, sub := range f.SubFmts {
-		sub = getVarFormatName(dta, svc, sub, dtas)
-		subElems := findPinElemsInFormat(dta, svc, sub, dtas, fmts, pes)
+		sub2 := getVarFormatName(dta, svc, sub, dtas)
+		if sub2 != sub {
+			fmt.Printf("getVarFormatName %v.%v %v -> %v\n", dta, svc, sub, sub2)
+		}
+		subElems := findPinElemsInFormat(dta, svc, sub2, dtas, fmts, pes)
 		if len(subElems) > 0 {
 			elems = append(elems, subElems...)
 		}
