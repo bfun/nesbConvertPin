@@ -38,26 +38,32 @@ func trimFormatCDATA(formats map[string]Format) {
 				}
 				vf.SubFmts = append(vf.SubFmts, vi.SubName)
 			}
-			s := strings.TrimSpace(vi.SubExpr)
-			if s != "" && strings.Contains(s, "?") && strings.Contains(s, ":") {
-				fs := re3.FindStringSubmatch(s)
-				if len(fs) > 0 {
-					if len(fs) != 4 {
-						panic(kf + s)
-					}
-				} else {
-					fs = re2.FindStringSubmatch(s)
-					if len(fs) != 3 {
-						panic(kf + s)
+			if vi.ItemType == "expr" {
+				s := strings.TrimSpace(vi.SubExpr)
+				if s != "" {
+					s = strings.Replace(s, " ", "", -1)
+					s = strings.Replace(s, `"`, "", -1)
+					if strings.Contains(s, "?") && strings.Contains(s, ":") {
+						fs := re3.FindStringSubmatch(s)
+						if len(fs) > 0 {
+							if len(fs) != 4 {
+								panic(kf + s)
+							}
+						} else {
+							fs = re2.FindStringSubmatch(s)
+							if len(fs) != 3 {
+								panic(kf + s)
+							}
+						}
+						for _, f := range fs[1:] {
+							vf.SubFmts = append(vf.SubFmts, f)
+						}
+					} else {
+						vf.SubFmts = append(vf.SubFmts, s)
 					}
 				}
-				for _, f := range fs[1:] {
-					f = strings.Replace(f, " ", "", -1)
-					f = strings.Replace(f, `"`, "", -1)
-					vf.SubFmts = append(vf.SubFmts, f)
-				}
+				vf.Items[ki].SubExpr = s
 			}
-			vf.Items[ki].SubExpr = s
 		}
 		formats[kf] = vf
 	}
