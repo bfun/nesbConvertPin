@@ -18,6 +18,7 @@ type DataTransferAdapter struct {
 	ConvertPin       bool
 	Services         map[string]Service
 	NESB_SDTA_NAME   string
+	NESB_DDTA_NAME   string
 }
 
 func trimDtaParmCDATA(d *DataTransferAdapter) {

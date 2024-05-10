@@ -32,7 +32,56 @@ func getPinElemsByService(dta string, svc string, mpes map[string][]PinElem) []P
 	return pes
 }
 
-func findPinElemsInFormat(dta, svc, fmt string, fmts map[string]Format, pes []PinElem) []PinElem {
+func getVarFormatName(dta, svc, fmt string, dtas map[string]DataTransferAdapter) string {
+	if !strings.Contains(fmt, "+") {
+		return fmt
+	}
+	RIG := "RIG($stdmsgtype+$stdprocode,10)"
+	if strings.Contains(fmt, RIG) {
+		fmt = strings.Replace(fmt, RIG, svc, 1)
+	}
+	CBS := "$CBS_FORMAT"
+	if strings.Contains(fmt, CBS) {
+		fmt = strings.Replace(fmt, CBS, svc, 1)
+	}
+	SVC := "$__SVCNAME"
+	if strings.Contains(fmt, SVC) {
+		fmt = strings.Replace(fmt, SVC, svc, 1)
+	}
+	SDTA := "$NESB_SDTA_NAME"
+	if strings.Contains(fmt, SDTA) {
+		to := dta
+		d, ok := dtas[dta]
+		if !ok {
+			panic(dta + svc + fmt)
+		}
+		if d.NESB_SDTA_NAME != "" {
+			to = d.NESB_SDTA_NAME
+		}
+		s, ok := d.Services[svc]
+		if !ok {
+			panic(dta + svc + fmt)
+		}
+		if s.NESB_SDTA_NAME != "" {
+			to = s.NESB_SDTA_NAME
+		}
+		fmt = strings.Replace(fmt, SDTA, to, 1)
+	}
+	DDTA := "$NESB_DDTA_NAME"
+	if strings.Contains(fmt, DDTA) {
+		to := dta
+		d, ok := dtas[dta]
+		if !ok {
+			panic(dta + svc + fmt)
+		}
+		if d.NESB_DDTA_NAME != "" {
+			to = d.NESB_DDTA_NAME
+		}
+		fmt = strings.Replace(fmt, DDTA, to, 1)
+	}
+	return strings.ReplaceAll(fmt, "+", "")
+}
+func findPinElemsInFormat(dta, svc, fmt string, dtas map[string]DataTransferAdapter, fmts map[string]Format, pes []PinElem) []PinElem {
 	var elems []PinElem
 	f, ok := fmts[fmt]
 	if !ok {
@@ -55,7 +104,8 @@ func findPinElemsInFormat(dta, svc, fmt string, fmts map[string]Format, pes []Pi
 		}
 	}
 	for _, sub := range f.SubFmts {
-		subElems := findPinElemsInFormat(dta, svc, sub, fmts, pes)
+		sub = getVarFormatName(dta, svc, sub, dtas)
+		subElems := findPinElemsInFormat(dta, svc, sub, dtas, fmts, pes)
 		if len(subElems) > 0 {
 			elems = append(elems, subElems...)
 		}
@@ -96,7 +146,7 @@ func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes m
 					}
 				}
 			*/
-			elems := findPinElemsInFormat(kd, ks, vs.IFmt, fmts, pes)
+			elems := findPinElemsInFormat(kd, ks, vs.IFmt, dtas, fmts, pes)
 			if len(elems) == 0 {
 				continue
 			}
