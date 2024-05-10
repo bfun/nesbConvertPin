@@ -32,60 +32,61 @@ func getPinElemsByService(dta string, svc string, mpes map[string][]PinElem) []P
 	return pes
 }
 
-func getVarFormatName(dta, svc, fmt string, dtas map[string]DataTransferAdapter) string {
-	if !strings.Contains(fmt, "+") {
-		return fmt
+func getVarFormatName(dta, svc, format string, dtas map[string]DataTransferAdapter) string {
+	if !strings.Contains(format, "+") {
+		return format
 	}
 	RIG := "RIG($stdmsgtype+$stdprocode,10)"
-	if strings.Contains(fmt, RIG) {
-		fmt = strings.Replace(fmt, RIG, svc, 1)
+	if strings.Contains(format, RIG) {
+		format = strings.Replace(format, RIG, svc, 1)
 	}
 	CBS := "$CBS_FORMAT"
-	if strings.Contains(fmt, CBS) {
-		fmt = strings.Replace(fmt, CBS, svc, 1)
+	if strings.Contains(format, CBS) {
+		format = strings.Replace(format, CBS, svc, 1)
 	}
 	SVC := "$__SVCNAME"
-	if strings.Contains(fmt, SVC) {
-		fmt = strings.Replace(fmt, SVC, svc, 1)
+	if strings.Contains(format, SVC) {
+		format = strings.Replace(format, SVC, svc, 1)
 	}
 	SDTA := "$NESB_SDTA_NAME"
-	if strings.Contains(fmt, SDTA) {
+	if strings.Contains(format, SDTA) {
 		to := dta
 		d, ok := dtas[dta]
 		if !ok {
-			panic(dta + svc + fmt)
+			panic(dta + svc + format)
 		}
 		if d.NESB_SDTA_NAME != "" {
 			to = d.NESB_SDTA_NAME
 		}
 		s, ok := d.Services[svc]
 		if !ok {
-			panic(dta + svc + fmt)
+			panic(dta + svc + format)
 		}
 		if s.NESB_SDTA_NAME != "" {
 			to = s.NESB_SDTA_NAME
 		}
-		fmt = strings.Replace(fmt, SDTA, to, 1)
+		format = strings.Replace(format, SDTA, to, 1)
 	}
 	DDTA := "$NESB_DDTA_NAME"
-	if strings.Contains(fmt, DDTA) {
+	if strings.Contains(format, DDTA) {
 		to := dta
 		d, ok := dtas[dta]
 		if !ok {
-			panic(dta + svc + fmt)
+			panic(dta + svc + format)
 		}
 		if d.NESB_DDTA_NAME != "" {
 			to = d.NESB_DDTA_NAME
 		}
-		fmt = strings.Replace(fmt, DDTA, to, 1)
+		format = strings.Replace(format, DDTA, to, 1)
 	}
-	return strings.ReplaceAll(fmt, "+", "")
+	return strings.ReplaceAll(format, "+", "")
 }
-func findPinElemsInFormat(dta, svc, fmt string, dtas map[string]DataTransferAdapter, fmts map[string]Format, pes []PinElem) []PinElem {
+func findPinElemsInFormat(dta, svc, format string, dtas map[string]DataTransferAdapter, fmts map[string]Format, pes []PinElem) []PinElem {
 	var elems []PinElem
-	f, ok := fmts[fmt]
+	f, ok := fmts[format]
 	if !ok {
-		panic(dta + svc + fmt)
+		fmt.Println(dta, svc, format, "format not found")
+		return nil
 	}
 	for _, pe := range pes {
 		var pin, acc bool
@@ -123,29 +124,6 @@ func meshFmt(dtas map[string]DataTransferAdapter, fmts map[string]Format, mpes m
 				fmt.Printf("??? %v.%v DTA_%v/Service_%v, but no rules matched\n", kd, ks, vd.ConvertPin, vs.ConvertPin)
 				continue
 			}
-			/*
-				var elems []PinElem
-				f, ok := fmts[vs.IFmt]
-				if !ok {
-					panic(vs.IFmt)
-				}
-				for _, pe := range pes {
-					var pin, acc bool
-					for _, vi := range f.Items {
-						if vi.ElemName == pe.Pin {
-							pin = true
-						}
-					}
-					for _, vi := range f.Items {
-						if vi.ElemName == pe.Acc {
-							acc = true
-						}
-					}
-					if pin && acc {
-						elems = append(elems, pe)
-					}
-				}
-			*/
 			elems := findPinElemsInFormat(kd, ks, vs.IFmt, dtas, fmts, pes)
 			if len(elems) == 0 {
 				continue
